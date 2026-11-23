@@ -1,0 +1,66 @@
+const Obra = require('../models/Obra')
+
+const cadastrar = async(req,res)=>{
+    const valores = req.body
+
+    if(!valores.codIdentificacao || !valores.nome || !valores.cnpj){
+        return res.status(400).json({message: "Todos os campos são obrigatoriso!"})
+    }
+
+    try {
+        await Obra.create(valores)
+        return res.status(201).json({message: "Dados cadastrados com sucesso!"})
+    } catch (err) {
+        console.error('erro ao cadastrar',err)
+        return res.status(500).json({message: "Erro ao cadastrar"})
+    }
+
+}
+
+const consultar = async(req,res)=>{
+    const id = req.params.id
+
+    try {
+        const obra = await Obra.findByPk(id)
+        if(!obra){   
+            return res.status(404).json({message: " não encontrado!"})
+        }
+        return res.status(200).json(obra)
+    } catch (err) {
+        console.error('erro ao consultar',err)
+        return res.status(500).json({message: "Erro ao consultar"})
+    }
+}
+
+const listar = async(req,res)=>{
+    try {
+        const obras = await Obra.findAll()
+        if(!obras){
+            return res.status(404).json({message: " não encontrado!"})
+        }
+        return res.status(200).json(obras)
+    } catch (err) {
+        console.error('erro ao listar',err)
+        return res.status(500).json({message: "Erro ao listar"})    
+    }
+}
+
+const apagar = async(req,res)=>{
+    const id = req.params.id
+
+    try {
+        const obra = await Obra.findByPk(id)
+        if(!obra){
+            return res.status(404).json({message: " não encontrado!"})
+        }
+        await Obra.destroy({where: {codObra: id}})
+        return res.status(200).json({message: "Dados excluidos"})
+
+    } catch (err) {
+        console.error('erro ao apagar',err)
+        return res.status(500).json({message: "Erro ao apagar"})   
+    }
+
+}
+
+module.exports = {cadastrar, consultar, listar, apagar}
